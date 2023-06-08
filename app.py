@@ -21,7 +21,20 @@ elif page == 'Adtasukaru':
 
     if system:
         st.write('アドタスカルのシステムを開始します。')
-        st.write(datetime.datetime.now())
+        now = datetime.datetime.now()
+        year = now.year
+        month = now.month
+        day = now.day
+        hour = now.hour
+        minute = now.minute
+        second = now.second
+        if month < 10:
+            month = '0' + str(month)
+        if day < 10:
+            day = '0' + str(day)
+        today_now = str(year) + '/' + str(month) + '/' + str(day) + ' ' + str(hour) + '：' + str(minute) + '：' + str(second)
+
+        st.write(today_now)
 
         browser = webdriver.Chrome()
         browser.get(adtasukaru)
