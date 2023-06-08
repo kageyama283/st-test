@@ -4,8 +4,11 @@ import time
 import datetime
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-from selenium.webdriver.chrome.options import Options
-
+# from selenium.webdriver.chrome.options import Options
+from selenium.webdriver import ChromeOptions
+from webdriver_manager.chrome import ChromeDriverManager
+from webdriver_manager.core.utils import ChromeType
+from selenium.webdriver.chrome import service as fs
 
 url = 'https://jsonplaceholder.typicode.com/posts/1'
 adtasukaru = 'https://tools.adtasukaru.com/'
@@ -35,8 +38,9 @@ elif page == 'Adtasukaru':
         today_now = str(year) + '/' + str(month) + '/' + str(day) + ' ' + str(hour) + '：' + str(minute) + '：' + str(second)
 
         st.write(today_now)
-
-        browser = webdriver.Chrome()
+        CHROMEDRIVER = ChromeDriverManager().install()
+        service = fs.Service(CHROMEDRIVER)
+        browser = webdriver.Chrome(options=ChromeOptions(), service=service)
         browser.get(adtasukaru)
 
         elem_class =  browser.find_elements(By.CLASS_NAME , 'el-input__inner')
