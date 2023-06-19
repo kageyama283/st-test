@@ -3,7 +3,7 @@ import pandas as pd
 
 uploaded_file = st.file_uploader('ファイルをアップロード')
 if uploaded_file:
-    df = pd.read_csv(uploaded_file)#CSV読み込み
+    df = pd.read_csv(uploaded_file,type="csv")#CSV読み込み
     name = df['Ad name'].str[10::]#文字列の11文字目からを取得(A1T1など)
     df['name'] = name#CSVに[name]という項目を追加
     # st.write(df)
