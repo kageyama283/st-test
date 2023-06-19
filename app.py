@@ -1,60 +1,62 @@
 import streamlit as st
-import requests
-import time
-import datetime
-from selenium import webdriver
-from selenium.webdriver.common.by import By
-# from selenium.webdriver.chrome.options import Options
-from selenium.webdriver import ChromeOptions
-from webdriver_manager.chrome import ChromeDriverManager
-from webdriver_manager.core.utils import ChromeType
-from selenium.webdriver.chrome import service as fs
+import pandas as pd
 
-url = 'https://jsonplaceholder.typicode.com/posts/1'
-adtasukaru = 'https://tools.adtasukaru.com/'
+uploaded_file = st.file_uploader('ファイルをアップロード')
+if uploaded_file:
+    df = pd.read_csv(uploaded_file)#CSV読み込み
+    name = df['Ad name'].str[10::]#文字列の11文字目からを取得(A1T1など)
+    df['name'] = name#CSVに[name]という項目を追加
+    # st.write(df)
 
-page = st.sidebar.selectbox('Choose your app',['Scraiping','Adtasukaru'])
-if page == 'Scraiping':
-    st.title('Scraiping Page')
+    options = df['name'].unique()#['name']項目の中から重複を削除して抽出
+    # options = st.sidebar.multiselect('プログラム名',dupli)
+    
+    name_arr = []
+    imp_arr = []
+    click_arr = []
+    cv_arr = []
+    cost_arr = []
 
-elif page == 'Adtasukaru':
-    st.title('Adatasukaru Page')
+    ctr_arr = []
+    cpc_arr = []
+    cvr_arr = []
+    cpa_arr = []
 
-    system = st.button('アドタスカルのシステム開始')
+    # if options:
+    for i,option in enumerate(options):
+        selected = df.query(f'name == "{option}"')
+        name_arr.append(option)
+        imp = selected['Impressions'].sum()
+        imp_arr.append(imp)
+        click = selected['Clicks'].sum()
+        click_arr.append(click)
+        cv = selected['CV (conversions)'].sum()
+        cv_arr.append(cv)
+        cost = selected['Cost'].sum()
+        cost_arr.append(cost)
 
-    if system:
-        st.write('アドタスカルのシステムを開始します。')
-        now = datetime.datetime.now()
-        year = now.year
-        month = now.month
-        day = now.day
-        hour = now.hour
-        minute = now.minute
-        second = now.second
-        if month < 10:
-            month = '0' + str(month)
-        if day < 10:
-            day = '0' + str(day)
-        today_now = str(year) + '/' + str(month) + '/' + str(day) + ' ' + str(hour) + '：' + str(minute) + '：' + str(second)
+        ctr = click / imp * 100
+        ctr_arr.append(str(round(ctr,2)) + '%')
+        cpc = cost / click
+        cpc_arr.append(str('{:,.2f}'.format(cpc)) + '円')
+        cvr = cv / click * 100
+        cvr_arr.append(str(round(cvr,2)) + '%')
+        cpa = cost / cv
+        cpa_arr.append(str(round(cpa,0)) + '円')
 
-        st.write(today_now)
-        CHROMEDRIVER = ChromeDriverManager().install()
-        service = fs.Service(CHROMEDRIVER)
-        browser = webdriver.Chrome(options=ChromeOptions(), service=service)
-        browser.get(adtasukaru)
+        df1 = pd.DataFrame(
+            data={
+                '広告名':name_arr,
+                'インプレッション':imp_arr,
+                'クリック数':click_arr,
+                'CV':cv_arr,
+                'Cost':cost_arr,
+                'CTR':ctr_arr,
+                'CPC':cpc_arr,
+                'CVR':cvr_arr,
+                'CPA':cpa_arr,
+            }
+        )
+    st.write(df1)
 
-        elem_class =  browser.find_elements(By.CLASS_NAME , 'el-input__inner')
-        elem_btn = browser.find_element(By.CLASS_NAME,'el-button')
-        elem_class[0].send_keys('listing@suprieve.com')
-        elem_class[1].send_keys('I1JslzZM9j')
-        # 1秒待つ
-        time.sleep(1)
-        # ログインボタンをクリック
-        elem_btn.click()
-
-st.write('opened')
-start = st.button('start','start')
-
-if start:
-    res = requests.get(url)
-    st.write(res.json())
+    # st.write(df[['Adname','Impressions','Clicks','CTR (click-through rate)','CPC (cost per click)','CV (conversions)','CVR (conversion rate)','CPA (cost per action)','Cost']])
